@@ -62,11 +62,9 @@ def mqtt_bridge_node():
 
         from_prefix = bridge_params.get('from_prefix', bridge_params.get('prefix', ''))
         to_prefix = bridge_params.get('to_prefix', bridge_params.get('prefix', ''))
-        print(args)
         topic = args.pop('topic', '')
         args['topic_from'] = from_prefix + args.get('topic_from', topic)
         args['topic_to'] = to_prefix + args.get('topic_to', topic)
-        print(args)
         bridges.append(create_bridge(**args))
 
     # start MQTT loop
