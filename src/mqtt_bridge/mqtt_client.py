@@ -1,9 +1,21 @@
 # -*- coding: utf-8 -*-
 import ssl
-
+import os
 import paho.mqtt.client as mqtt
 import rospy
 
+
+def get_ssl_context(params):
+    ssl_context = ssl.create_default_context()
+    
+    cafile = os.path.expanduser(params['ca_certs'])
+    certfile = os.path.expanduser(params['certfile'])
+    keyfile = os.path.expanduser(params['keyfile'])
+
+    ssl_context.set_alpn_protocols(params['alpn_protocols'])
+    ssl_context.load_verify_locations(cafile=cafile)
+    ssl_context.load_cert_chain(certfile=certfile, keyfile=keyfile)
+    return ssl_context
 
 def default_mqtt_client_factory(params):
     u""" MQTT Client factory
@@ -18,9 +30,7 @@ def default_mqtt_client_factory(params):
     # configure tls
     tls_params = params.get('tls', {})
     if tls_params:
-        tls_insecure = tls_params.pop('tls_insecure', False)
-        client.tls_set(**tls_params)
-        client.tls_insecure_set(tls_insecure)
+        client.tls_set_context(context=get_ssl_context(tls_params))
 
     # configure username and password
     account_params = params.get('account', {})
